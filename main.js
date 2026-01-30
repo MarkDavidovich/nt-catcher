@@ -1,6 +1,9 @@
 import { Item } from "./model.js";
 import { Renderer } from "./renderer.js";
 
+const DEFAULT_TIME = 5;
+const DEFAULT_LEVEL = 1;
+
 // connects between model and renderer to show elements on the screen
 const item = Item();
 const renderer = Renderer();
@@ -22,11 +25,10 @@ const loadItems = () => {
 };
 
 const startGame = () => {
+  initLevel();
   resetStats();
   score.textContent = `Score: ${scoreAmount}`;
   score.levelNum = `Level: ${levelNum}`;
-  loadItems();
-
   startBtn.disabled = true;
   startBtn.classList.add("inactive");
   gameOverText.classList.remove("enabled");
@@ -34,8 +36,6 @@ const startGame = () => {
   level.textContent = `Level: ${levelNum}`;
 
   countTime();
-
-  //start game resets score, loads items into it and starts counter
 };
 
 const endGame = () => {
@@ -50,17 +50,11 @@ const endGame = () => {
 const resetStats = () => {
   clearInterval(intervalId);
 
-  levelNum = 0;
+  levelNum = DEFAULT_LEVEL;
   scoreAmount = 0;
-  totalTime = 5;
-
-  //   startBtn.textContent = "Start";
-  //   timer.textContent = "Time Left: -";
-  //   score.textContent = "Score: -";
-  //   level.textContent = "Level: -";
+  totalTime = DEFAULT_TIME;
 };
 
-//put it in startGame
 const countTime = () => {
   clearInterval(intervalId);
 
@@ -74,6 +68,31 @@ const countTime = () => {
   }, 1000);
 };
 
+const initLevel = () => {
+  item.removeAllItems();
+
+  //add initial items;
+  item.addItem(true);
+  item.addItem(true);
+  item.addItem(false);
+  if (levelNum > 0) {
+    for (let i = 0; i < levelNum; i++) {
+      item.addItem(Math.random() > 0.5 ? true : false);
+    }
+  }
+
+  loadItems();
+};
+
+const advanceLevel = () => {
+  clearInterval(intervalId);
+  item.removeAllItems();
+  levelNum++;
+  initLevel();
+  totalTime = DEFAULT_TIME;
+  countTime();
+};
+
 startBtn.addEventListener("click", () => {
   startGame();
 });
@@ -83,20 +102,19 @@ itemsContainer.addEventListener("click", (ev) => {
     const id = ev.target.dataset.id;
     //check if item is bad or good and increment score or trigger game over.
     if (ev.target.classList.contains("good")) {
+      item.deleteItem(+id);
+
       scoreAmount++;
       score.textContent = `Score: ${scoreAmount}`;
+
+      if (item.checkItems()) {
+        console.log("next level!");
+        advanceLevel();
+      }
     } else {
-      console.log("GAME OVER BITCH");
+      endGame();
     }
-    item.deleteItem(+id);
 
     loadItems();
   }
 });
-
-//Start Game
-
-//End Game
-
-//Count Time
-//counts from a certain number, if it's over, ends the game, resets on each stage and on game start.

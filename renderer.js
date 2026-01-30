@@ -22,7 +22,7 @@ export const Renderer = () => {
       item.classList.add("bad");
     }
 
-    item.style.transform = `scale(${_getRandomScale})`; // sets a random scale from 0.5 to 1.5
+    item.style.transform = `scale(${_getRandomScale()})`; // sets a random scale from 0.5 to 1.5
 
     return item;
   };
