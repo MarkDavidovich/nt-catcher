@@ -15,7 +15,8 @@ const scoreText = document.querySelector(".score");
 const levelText = document.querySelector(".level");
 const gameOverText = document.querySelector(".game-over-text");
 
-let intervalId;
+let timerInterval;
+let levelChangeInterval;
 let levelNum;
 let scoreAmount;
 let totalTime;
@@ -52,7 +53,7 @@ const endGame = () => {
 };
 
 const resetStats = () => {
-  clearInterval(intervalId);
+  clearInterval(timerInterval);
 
   levelNum = DEFAULT_LEVEL;
   scoreAmount = 0;
@@ -60,15 +61,15 @@ const resetStats = () => {
 };
 
 const countTime = () => {
-  clearInterval(intervalId);
+  clearInterval(timerInterval);
 
-  intervalId = setInterval(() => {
+  timerInterval = setInterval(() => {
     updateTimer();
     updateTimerDisplay();
     if (totalTime === 0) {
       timerText.classList.remove("flashing-red");
       endGame();
-      clearInterval(intervalId);
+      clearInterval(timerInterval);
     }
     totalTime--;
   }, 1000);
@@ -90,7 +91,7 @@ const initLevel = () => {
 };
 
 const advanceLevel = () => {
-  clearInterval(intervalId);
+  clearInterval(timerInterval);
 
   levelNum++;
   totalTime += 2;
@@ -98,8 +99,10 @@ const advanceLevel = () => {
   updateTimer();
   updateLevel();
 
+  updateLevelDisplay();
   timerText.classList.remove("flashing-red");
   item.removeAllItems();
+
   initLevel();
   countTime();
 };
@@ -128,12 +131,23 @@ const updateTimerDisplay = () => {
   }
 };
 
+const updateLevelDisplay = () => {
+  clearInterval(levelChangeInterval);
+  levelText.classList.add("flashing-yellow");
+
+  setTimeout(() => {
+    levelText.classList.remove("flashing-yellow");
+  }, 1000);
+};
+
 itemsContainer.addEventListener("click", (ev) => {
   if (ev.target.classList.contains("item")) {
     const id = ev.target.dataset.id;
     //check if item is bad or good and increment score or trigger game over.
     if (ev.target.classList.contains("good")) {
       item.deleteItem(+id);
+      //this option enables the prevention of re-organizing items with each click because we don't need to re-render each time.
+      ev.target.remove();
 
       scoreAmount++;
       updateScore();
@@ -144,6 +158,6 @@ itemsContainer.addEventListener("click", (ev) => {
       endGame();
     }
 
-    loadItems();
+    // loadItems();
   }
 });
