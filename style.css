@@ -64,6 +64,12 @@ footer {
   align-items: center;
 }
 
+.score,
+.level {
+  width: 30%;
+  text-align: center;
+}
+
 button {
   background-color: rgb(255, 192, 103);
   height: 100%;
@@ -82,16 +88,21 @@ button:active {
 }
 
 .item {
-  width: 40px;
-  height: 40px;
+  /* pointer-events: none; */
+  position: absolute;
+  width: 70px;
+  height: 70px;
 }
 
+svg {
+  pointer-events: none;
+}
 .good {
-  background-color: lightgreen;
+  /* background-color: lightgreen; */
 }
 
 .bad {
-  background-color: lightcoral;
+  /* background-color: lightcoral; */
 }
 
 .flex {
@@ -124,24 +135,24 @@ button:active {
 
 @keyframes flash-yellow {
   0% {
-    background-color: black;
+    color: black;
   }
   50% {
-    background-color: yellow;
+    color: yellow;
   }
   100% {
-    background-color: black;
+    color: black;
   }
 }
 
 @keyframes flash-red {
   0% {
-    background-color: black;
+    color: black;
   }
   50% {
-    background-color: red;
+    color: red;
   }
   100% {
-    background-color: black;
+    color: black;
   }
 }

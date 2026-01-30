@@ -10,9 +10,9 @@ const renderer = Renderer();
 
 const itemsContainer = document.querySelector(".object-container");
 const startBtn = document.querySelector(".start-btn");
-const timer = document.querySelector(".timer");
-const score = document.querySelector(".score");
-const level = document.querySelector(".level");
+const timerText = document.querySelector(".timer");
+const scoreText = document.querySelector(".score");
+const levelText = document.querySelector(".level");
 const gameOverText = document.querySelector(".game-over-text");
 
 let intervalId;
@@ -25,23 +25,27 @@ const loadItems = () => {
 };
 
 const startGame = () => {
-  initLevel();
   resetStats();
-  score.textContent = `Score: ${scoreAmount}`;
-  score.levelNum = `Level: ${levelNum}`;
+  initLevel();
+
+  updateScore();
+  updateLevel();
+
   startBtn.disabled = true;
   startBtn.classList.add("inactive");
   gameOverText.classList.remove("enabled");
-
-  level.textContent = `Level: ${levelNum}`;
 
   countTime();
 };
 
 const endGame = () => {
-  itemsContainer.innerHTML = "";
-
+  item.removeAllItems();
+  loadItems();
   startBtn.disabled = false;
+  updateLevel();
+  updateScore();
+
+  resetStats();
   startBtn.classList.remove("inactive");
 
   gameOverText.classList.add("enabled");
@@ -59,8 +63,10 @@ const countTime = () => {
   clearInterval(intervalId);
 
   intervalId = setInterval(() => {
-    timer.textContent = `Time Left: ${totalTime}`;
+    updateTimer();
+    updateTimerDisplay();
     if (totalTime === 0) {
+      timerText.classList.remove("flashing-red");
       endGame();
       clearInterval(intervalId);
     }
@@ -75,10 +81,9 @@ const initLevel = () => {
   item.addItem(true);
   item.addItem(true);
   item.addItem(false);
-  if (levelNum > 0) {
-    for (let i = 0; i < levelNum; i++) {
-      item.addItem(Math.random() > 0.5 ? true : false);
-    }
+
+  for (let i = 0; i < levelNum; i++) {
+    item.addItem(Math.random() > 0.5);
   }
 
   loadItems();
@@ -86,16 +91,42 @@ const initLevel = () => {
 
 const advanceLevel = () => {
   clearInterval(intervalId);
-  item.removeAllItems();
+
   levelNum++;
+  totalTime += 2;
+
+  updateTimer();
+  updateLevel();
+
+  timerText.classList.remove("flashing-red");
+  item.removeAllItems();
   initLevel();
-  totalTime = DEFAULT_TIME;
   countTime();
 };
 
 startBtn.addEventListener("click", () => {
   startGame();
 });
+
+const updateScore = () => {
+  scoreText.textContent = `Score: ${scoreAmount}`;
+};
+
+const updateLevel = () => {
+  levelText.textContent = `Level: ${levelNum}`;
+};
+
+const updateTimer = () => {
+  timerText.textContent = `Time Left: ${totalTime}`;
+};
+
+const updateTimerDisplay = () => {
+  if (totalTime <= 3) {
+    timerText.classList.add("flashing-red");
+  } else {
+    timerText.classList.remove("flashing-red");
+  }
+};
 
 itemsContainer.addEventListener("click", (ev) => {
   if (ev.target.classList.contains("item")) {
@@ -105,10 +136,8 @@ itemsContainer.addEventListener("click", (ev) => {
       item.deleteItem(+id);
 
       scoreAmount++;
-      score.textContent = `Score: ${scoreAmount}`;
-
+      updateScore();
       if (item.checkItems()) {
-        console.log("next level!");
         advanceLevel();
       }
     } else {
